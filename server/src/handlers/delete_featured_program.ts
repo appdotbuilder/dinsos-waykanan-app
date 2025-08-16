@@ -1,7 +1,17 @@
+import { db } from '../db';
+import { featuredProgramsTable } from '../db/schema';
+import { eq } from 'drizzle-orm';
+
 export async function deleteFeaturedProgram(id: number): Promise<boolean> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is deleting a featured program entry from the database
-  // and returning true if successful, false otherwise.
-  
-  return Promise.resolve(true);
+  try {
+    const result = await db.delete(featuredProgramsTable)
+      .where(eq(featuredProgramsTable.id, id))
+      .execute();
+
+    // Check if any rows were deleted
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Featured program deletion failed:', error);
+    throw error;
+  }
 }

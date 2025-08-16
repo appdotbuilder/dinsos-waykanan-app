@@ -1,9 +1,21 @@
+import { db } from '../db';
+import { statusTimelineTable } from '../db/schema';
 import { type StatusTimeline } from '../schema';
+import { eq, desc } from 'drizzle-orm';
 
-export async function getStatusTimeline(applicationId: number): Promise<StatusTimeline[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching the complete status timeline for a specific application
-  // to show the progression of the application process.
-  
-  return Promise.resolve([]);
-}
+export const getStatusTimeline = async (applicationId: number): Promise<StatusTimeline[]> => {
+  try {
+    // Fetch status timeline records ordered by creation date (most recent first)
+    const results = await db.select()
+      .from(statusTimelineTable)
+      .where(eq(statusTimelineTable.application_id, applicationId))
+      .orderBy(desc(statusTimelineTable.created_at))
+      .execute();
+
+    // Return the results as-is since no numeric conversions are needed
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch status timeline:', error);
+    throw error;
+  }
+};

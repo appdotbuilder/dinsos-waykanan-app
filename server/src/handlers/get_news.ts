@@ -1,9 +1,24 @@
+import { db } from '../db';
+import { newsTable } from '../db/schema';
 import { type News } from '../schema';
+import { eq, desc, or } from 'drizzle-orm';
 
-export async function getNews(): Promise<News[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all published news and announcements
-  // for the "Berita & Pengumuman" section, ordered by published_at or created_at.
-  
-  return Promise.resolve([]);
-}
+export const getNews = async (): Promise<News[]> => {
+  try {
+    // Fetch all published news and announcements, ordered by published_at (desc) then created_at (desc)
+    const results = await db.select()
+      .from(newsTable)
+      .where(eq(newsTable.is_published, true))
+      .orderBy(desc(newsTable.published_at), desc(newsTable.created_at))
+      .execute();
+
+    // Convert numeric fields back to numbers before returning
+    return results.map(news => ({
+      ...news,
+      // No numeric columns to convert in this table
+    }));
+  } catch (error) {
+    console.error('News retrieval failed:', error);
+    throw error;
+  }
+};
